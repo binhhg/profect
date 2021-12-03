@@ -17,7 +17,7 @@ module.exports = (container) => {
             const { path } = req
 
             const option = {
-                uri: process.env.AUTHORIZATION_URL || 'http://localhost:8009/authorization',
+                uri: 'http://localhost:8009/authorization',
                 json: {
                     userId: user._id,
                     path,
@@ -45,6 +45,22 @@ module.exports = (container) => {
             res.status(httpCode.TOKEN_EXPIRED).json({})
         }
     }
+    const checkAdmin = async (req, res, next) => {
+        try {
+            const token = req.headers['x-access-token'] || ''
+            if (token) {
+                const user = await serverHelper.verifyToken(token)
+                if (user && user.isAdministrator) {
+                    req.user = user
+                    return next()
+                }
+                return res.status(httpCode.BAD_REQUEST).json( 'Bạn không có quyền thực hiện tác vụ này!')
+            }
+            res.status(httpCode.BAD_REQUEST).json('Bạn không có quyền thực hiện tác vụ này.')
+         } catch (e) {
+            res.status(httpCode.TOKEN_EXPIRED).json({})
+        }
+    }
     const checkAccessToken = (req, res, next) => {
         const token = req.headers['x-access-token']
         if (token) {
@@ -65,6 +81,7 @@ module.exports = (container) => {
     }
     return {
         verifyAccessToken,
-        checkAccessToken
+        checkAccessToken,
+        checkAdmin
     }
 }
