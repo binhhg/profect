@@ -13,7 +13,7 @@ module.exports = (container) => {
     let number = 0
     const {httpCode, serverHelper} = container.resolve('config')
     const {qrRepo, queueRepo} = container.resolve('repo')
-    const addQr = async (req, res) => {
+    const addQr = async (req, res) => { // đăng ký, nếu đã tồn tại thì sẽ trả lại số và vị trí mới trong hạng đợi
         try {
             const test = await queueRepo.getQueueAgg([
                 {
@@ -89,7 +89,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).end()
         }
     }
-    const deleteQr = async (req, res) => {
+    const deleteQr = async (req, res) => { // hủy. Trạng thái: CANCEL và xóa sesionid
         try {
             const y = req.session.cc
             if(y) {
@@ -118,7 +118,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
-    const updateQr = async (req, res) => {
+    const updateQr = async (req, res) => { // cập nhật trạng thái: 2: hoàn thành, 3, từ chối
         try {
             const { id } = req.params
             const body = req.body

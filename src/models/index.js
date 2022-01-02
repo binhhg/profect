@@ -37,7 +37,6 @@ const joi2MongoSchema = (joiSchema, special = {}, schemaOnly = {}, joiOnly = {})
 }
 module.exports = container => {
     container.registerValue('ObjectId', mongoose.Types.ObjectId)
-    const { configType } = container.resolve('config')
     const User = require('./user.model')(joi, mongoose, { joi2MongoSchema })
     const Session = require('./session.model')(joi, mongoose, {  joi2MongoSchema })
     const Queue = require('./queue.model')(joi, mongoose, { joi2MongoSchema })

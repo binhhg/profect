@@ -1,10 +1,10 @@
 module.exports = (joi, mongoose, {joi2MongoSchema, schemas}) => {
     const {ObjectId} = mongoose.Types
     const stateType = {
-        PENDING: 1,
-        COMPLETED: 2,
-        REJECT: 3,
-        CANCEL: 4
+        PENDING: 1, // đang chờ
+        COMPLETED: 2, // hoàn thành khi khách phản hồi
+        REJECT: 3, // từ chối khi khách k phản hồi
+        CANCEL: 4 // hủy khi khách quét qr hủy
 
     }
     const userJoi = joi.object({

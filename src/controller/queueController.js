@@ -9,7 +9,7 @@ module.exports = (container) => {
     } = container.resolve('models')
     const {httpCode, serverHelper} = container.resolve('config')
     const {queueRepo, qrRepo} = container.resolve('repo')
-    const addQueue = async (req, res) => {
+    const addQueue = async (req, res) => { // thêm hạng đợi, chỉ admin có quyền
         try {
             const body = req.body
             const {
@@ -26,7 +26,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).end()
         }
     }
-    const deleteQueue = async (req, res) => {
+    const deleteQueue = async (req, res) => { // xóa hạng đợi
         try {
             const {id} = req.params
             if (id) {
@@ -40,7 +40,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
-    const getQueueById = async (req, res) => {
+    const getQueueById = async (req, res) => { // thông tin 1 hạng đợi
         try {
             const {id} = req.params
             if (id) {
@@ -54,7 +54,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
-    const updateQueue = async (req, res) => {
+    const updateQueue = async (req, res) => { // chỉnh sửa hạng đợi
         try {
             const {id} = req.params
             const queue = req.body
@@ -76,7 +76,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
-    const getQueue = async (req, res) => {
+    const getQueue = async (req, res) => { // danh sách hạng đợi
         try {
             const queue = await queueRepo.getQueueNoPaging({isActive: 0, deleted: 0})
             res.status(httpCode.SUCCESS).send(queue)
@@ -85,7 +85,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
-    const getQrAndQueue = async (req, res) => {
+    const getQrAndQueue = async (req, res) => { // danh sách các qr của hạng đợi
         try {
             const {queueId} = req.query
             if (queueId){
