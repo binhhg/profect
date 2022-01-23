@@ -57,17 +57,15 @@ module.exports = (container) => {
     const updateQueue = async (req, res) => { // chỉnh sửa hạng đợi
         try {
             const {id} = req.params
-            const queue = req.body
-            const {
-                error,
-                value
-            } = await schemaValidator(queue, 'Queue')
-            if (error) {
-                return res.status(httpCode.BAD_REQUEST).send({msg: error.message})
-            }
-            if (id && queue) {
-                const sp = await queueRepo.updateQueue(id, value)
-                res.status(httpCode.SUCCESS).send(sp)
+            if (id) {
+                const data = await queueRepo.getQueueById(id)
+                if(data.isActive === 0){
+                    await queueRepo.updateQueue(id, { isActive: 1})
+                    return res.status(httpCode.SUCCESS).send('đã khóa')
+                } else {
+                    await queueRepo.updateQueue(id, { isActive: 0})
+                    return res.status(httpCode.SUCCESS).send('kích hoạt thành công')
+                }
             } else {
                 res.status(httpCode.BAD_REQUEST).end()
             }
@@ -89,7 +87,7 @@ module.exports = (container) => {
         try {
             const {queueId} = req.query
             if (queueId){
-                const data = await qrRepo.getQueueNoPaging({queueId: queueId, state: 1})
+                const data = await qrRepo.getQrNoPaging({queueId: queueId, state: 1})
                 res.status(httpCode.SUCCESS).send(data)
             } else {
                 res.status(httpCode.BAD_REQUEST).send({ok: false})

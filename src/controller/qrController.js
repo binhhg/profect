@@ -55,7 +55,8 @@ module.exports = (container) => {
                 }
             })
             const id = req.session.cc
-            if (!id) {
+            let data = await qrRepo.findOne({guestId: id, state: {$in: [2, 3]}})
+            if (!id || data) {
                 req.session.cc = nanoid(16)
                 const body = {
                     guestId: req.session.cc,
@@ -67,16 +68,16 @@ module.exports = (container) => {
                 const data = await qrRepo.addQr(body)
                 return res.status(httpCode.CREATED).send(data)
             } else {
-                const data = await qrRepo.findOne({guestId: id})
-                if(data){
+                const data = await qrRepo.findOne({guestId: id, state: 1})
+                if (data) {
                     data.toObject()
                 } else {
                     return res.status(httpCode.BAD_REQUEST).send('không tìm thấy thông tin!')
                 }
                 test.forEach(queue => {
-                    if(queue._id.toString() === data.queueId.toString()){
-                            const index = queue.qrs.map(i => i.guestId).indexOf(id)
-                        if(index > -1) {
+                    if (queue._id.toString() === data.queueId.toString()) {
+                        const index = queue.qrs.map(i => i.guestId).indexOf(id)
+                        if (index > -1) {
                             data.stt = index + 1
                         }
                     }
@@ -92,13 +93,41 @@ module.exports = (container) => {
     const deleteQr = async (req, res) => { // hủy. Trạng thái: CANCEL và xóa sesionid
         try {
             const y = req.session.cc
-            if(y) {
+            if (y) {
                 await qrRepo.updateQr({guestId: y}, {state: 4})
                 req.session.destroy()
                 res.status(httpCode.SUCCESS).send({ok: true})
             } else {
                 res.status(httpCode.BAD_REQUEST).send("ban chua dang ki")
-             }
+            }
+        } catch (e) {
+            logger.e(e)
+            res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
+        }
+    }
+    const completedQr = async (req, res) => { // hủy. Trạng thái: CANCEL và xóa sesionid
+        try {
+            const { id } = req.params
+            if (id) {
+                await qrRepo.updateQr({_id: ObjectId(id)}, {state: 2})
+                res.status(httpCode.SUCCESS).send({msg: 'da hoan thanh'})
+            } else {
+                res.status(httpCode.BAD_REQUEST).send("ban chua dang ki")
+            }
+        } catch (e) {
+            logger.e(e)
+            res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
+        }
+    }
+    const rejectQr = async (req, res) => { // hủy. Trạng thái: CANCEL và xóa sesionid
+        try {
+            const { id } = req.params
+            if (id) {
+                await qrRepo.updateQr({_id: ObjectId(id)}, {state: 3})
+                res.status(httpCode.SUCCESS).send({msg: 'Da tu choi'})
+            } else {
+                res.status(httpCode.BAD_REQUEST).send("ban chua dang ki")
+            }
         } catch (e) {
             logger.e(e)
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
@@ -120,10 +149,10 @@ module.exports = (container) => {
     }
     const updateQr = async (req, res) => { // cập nhật trạng thái: 2: hoàn thành, 3, từ chối
         try {
-            const { id } = req.params
+            const {id} = req.params
             const body = req.body
-            if (id ) {
-                const data = await queueRepo.updateQueue(id,body )
+            if (id) {
+                const data = await queueRepo.updateQueue(id, body)
                 res.status(httpCode.SUCCESS).send(data)
             } else {
                 res.status(httpCode.BAD_REQUEST).end()
@@ -186,11 +215,28 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
         }
     }
+    const getQrAndQueue = async (req, res) => { // danh sách các qr của hạng đợi
+        try {
+            const {queueId} = req.query
+            if (queueId){
+                const data = await qrRepo.getQrNoPaging({queueId: ObjectId(queueId), state: 1})
+                res.status(httpCode.SUCCESS).send(data)
+            } else {
+                res.status(httpCode.BAD_REQUEST).send({ok: false})
+            }
+        } catch (e) {
+            logger.e(e)
+            res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
+        }
+    }
     return {
         addQr,
         getQr,
         getQrById,
         updateQr,
-        deleteQr
+        deleteQr,
+        completedQr,
+        rejectQr,
+        getQrAndQueue
     }
 }

@@ -9,16 +9,15 @@ module.exports = (container) => {
     const {
         userRepo,
         sessionRepo,
-        ipUserRepo
     } = container.resolve('repo')
-    userRepo.addUser({
-        name: 'Binhpt',
-        isAdministrator: 1,
-        username: 'binhhg ',
-        password: serverHelper.encryptPassword('123456')
-    }).catch(() => {})
+    // userRepo.addUser({
+    //     name: 'Binhpt',
+    //     isAdministrator: 1,
+    //     username: 'binhhg ',
+    //     password: serverHelper.encryptPassword('123456')
+    // }).catch(() => {})
     const MAX_LOGIN = +process.env.MAX_LOGIN || 2
-    const addUser = async (req, res) => { // thêm tài khoản cho nhân viên, chỉ có admin có quyền
+    const addUser = async (req, res) => {
         try {
             const user = req.body
             const {
@@ -43,7 +42,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).end()
         }
     }
-    const login = async (req, res) => { // đăng nhập
+    const login = async (req, res) => {
         try {
             const {
                 username,
@@ -73,7 +72,7 @@ module.exports = (container) => {
             return res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'Co loi xay ra' })
         }
     }
-    const logout = async (req, res) => { // đăng xuất
+    const logout = async (req, res) => {
         try {
             const token = req.headers['x-access-token'] || ''
             await sessionRepo.removeSession({ hash: serverHelper.generateHash(token) })
@@ -83,7 +82,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).end()
         }
     }
-    const deleteUser = async (req, res) => { // xóa tài khoản
+    const deleteUser = async (req, res) => {
         try {
             const { id } = req.params
             if (id) {
@@ -97,7 +96,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ ok: false })
         }
     }
-    const getUserById = async (req, res) => { // thông tin 1 tài khoản
+    const getUserById = async (req, res) => {
         try {
             const { id } = req.params
             if (id) {
@@ -161,7 +160,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).send({ ok: false })
         }
     }
-    const getUser = async (req, res) => { // danh sách tài khoản
+    const getUser = async (req, res) => {
         try {
             let {
                 page,
@@ -240,7 +239,7 @@ module.exports = (container) => {
             res.status(httpCode.UNKNOWN_ERROR).json({ msg: 'Co loi xay ra' })
         }
     }
-    const changePassword = async (req, res) => { // đổi mật khẩu
+    const changePassword = async (req, res) => {
         try {
             const {
                 oldPassword,

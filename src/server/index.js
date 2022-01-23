@@ -9,23 +9,40 @@ const swaggerJsDoc = require('swagger-jsdoc')
 const api = require('../api')
 const start = (container) => {
   return new Promise((resolve, reject) => {
-    const option = {
-      definition: {
-        openapi: '3.0.0',
+
+    const options = {
+      swaggerDefinition: {
+        openapi: "3.0.0",
         info: {
-          title: 'Library API',
-          version: '1.0.0',
-          description: 'A simple express library api'
+          title: "Library API",
+          version: "1.0.0",
+          description: "A simple Express Library API",
         },
+        components: {
+          securitySchemes: {
+            jwt: {
+              type: "http",
+              scheme: "bearer",
+              in: "header",
+              name: "x-access-token",
+              bearerFormat: "JWT"
+            },
+          }
+        }
+        ,
+        security: [{
+          jwt: []
+        }],
         servers: [
           {
-            url:  'http://localhost:8009'
-          }
+            url: "http://localhost:8009",
+          },
         ],
       },
-      apis: ["../api/*.js"]
-    }
-    const specs = swaggerJsDoc(option)
+      apis: ["src/api/*.js"],
+    };
+    const specs = swaggerJsDoc(options)
+
     const { serverSettings } = container.resolve('config')
     const { port } = serverSettings
     if (!port) {
@@ -34,6 +51,7 @@ const start = (container) => {
     const app = express()
     morgan.token('body', function (req) { return JSON.stringify(req.body) })
     app.use('/api-docs', swaggerUI.serve,swaggerUI.setup(specs))
+
     app.use(session({
       secret: 'keyboard cat',
       resave: false,

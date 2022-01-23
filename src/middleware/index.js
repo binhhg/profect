@@ -11,10 +11,10 @@ module.exports = (container) => {
         try {
             const token = req.headers['x-access-token'] || ''
             if (!token) {
-                return res.status(httpCode.BAD_REQUEST).json({ msg: 'Bạn không có quyền thực hiện tác vụ này.' })
+                return res.status(httpCode.BAD_REQUEST).json({msg: 'Bạn không có quyền thực hiện tác vụ này.'})
             }
             const user = await serverHelper.verifyToken(token)
-            const { path } = req
+            const {path} = req
 
             const option = {
                 uri: 'http://localhost:8009/authorization',
@@ -37,7 +37,7 @@ module.exports = (container) => {
                 req.user = userAuthorization
                 return next()
             }
-            res.status(httpCode.BAD_REQUEST).json({ msg: msg || 'Bạn không có quyền thực hiện tác vụ này.' })
+            res.status(httpCode.BAD_REQUEST).json({msg: msg || 'Bạn không có quyền thực hiện tác vụ này.'})
         } catch (e) {
             if (!e.message.includes('TokenExpiredError')) {
                 logger.e(e)
@@ -54,30 +54,27 @@ module.exports = (container) => {
                     req.user = user
                     return next()
                 }
-                return res.status(httpCode.BAD_REQUEST).json( 'Bạn không có quyền thực hiện tác vụ này!')
+                return res.status(httpCode.BAD_REQUEST).json('Bạn không có quyền thực hiện tác vụ này!')
             }
             res.status(httpCode.BAD_REQUEST).json('Bạn không có quyền thực hiện tác vụ này.')
-         } catch (e) {
+        } catch (e) {
             res.status(httpCode.TOKEN_EXPIRED).json({})
         }
     }
     const checkAccessToken = (req, res, next) => {
         const token = req.headers['x-access-token']
-        if (token) {
-            const user = serverHelper.isValidToken(token)
-            if (user) {
-                req.user = user
-                return next()
-            } else {
-                for (const i of arrIgnore) {
-                    if (req.path.includes(i)) {
-                        return next()
-                    }
+        const user = serverHelper.isValidToken(token)
+        if (user) {
+            req.user = user
+            return next()
+        } else {
+            for (const i of arrIgnore) {
+                if (req.path.includes(i)) {
+                    return next()
                 }
-                return res.status(httpCode.TOKEN_EXPIRED).json({})
             }
+            return res.status(httpCode.TOKEN_EXPIRED).json({})
         }
-        next()
     }
     return {
         verifyAccessToken,

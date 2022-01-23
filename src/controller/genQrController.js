@@ -10,13 +10,13 @@ module.exports = (container) => {
                     dark: '#00F',
                     light: '#0000'
                 },
-                type: 'copyLink',
+                type: 'Link',
                 width: 300,
                 margin:10,
                 scale: 10
             });
             img = `<image src= " `+qr+ `" />`
-            return res.send(img);
+            return res.status(httpCode.SUCCESS).send(img)
         } catch (e) {
             logger.e(e)
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
@@ -32,13 +32,13 @@ module.exports = (container) => {
                     dark: '#00F',
                     light: '#0000'
                 },
-                type: 'copyLink',
+                type: 'Link',
                 width: 300,
                 margin:10,
                 scale: 10
             });
             img = `<image src= " `+qr+ `" />`
-            return res.send(img);
+            return res.status(httpCode.SUCCESS).send(img)
         } catch (e) {
             logger.e(e)
             res.status(httpCode.UNKNOWN_ERROR).send({ok: false})
