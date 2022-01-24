@@ -13,7 +13,7 @@ module.exports = (container) => {
     // userRepo.addUser({
     //     name: 'Binhpt',
     //     isAdministrator: 1,
-    //     username: 'binhhg ',
+    //     username: 'binhhg',
     //     password: serverHelper.encryptPassword('123456')
     // }).catch(() => {})
     const MAX_LOGIN = +process.env.MAX_LOGIN || 2

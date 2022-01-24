@@ -6,11 +6,11 @@ module.exports = container => {
         return user.save()
     }
     const login = ({
-                       userName,
+                       username,
                        password
                    }) => {
         return User.findOne({
-            userName,
+            username,
             password
         }).select('-password')
     }
